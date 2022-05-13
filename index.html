@@ -47,7 +47,6 @@
                 b = parseInt(b.substring(5));
                 return b - a;
             });
-            console.log(orderedItems);
             let listItems = "";
             let marked = false;
             orderedItems.forEach(key => {
@@ -106,7 +105,14 @@
     // Deleting Note
     $(document).on('click', 'button.delete', function () {
         $(this).parent().remove();
-        localStorage.removeItem($(this).parent('li')[0].classList.value);
+        let classList = $(this).parent().attr('class');
+        let firstClass = "";
+        if (classList.indexOf(' ') >= 0) {
+            firstClass = classList.substring(0, classList.indexOf(' '));
+        } else {
+            firstClass = classList;
+        }
+        localStorage.removeItem(firstClass);
         const items = { ...localStorage };
         const itemKeys = Object.keys(items);
         const orderedItems = itemKeys.sort(function (a, b) {
@@ -114,7 +120,6 @@
             b = parseInt(b.substring(5));
             return a - b;
         });
-        console.log(orderedItems);
         localStorage.clear();
         count = 0;
         if (orderedItems.length > 0) {
@@ -136,7 +141,6 @@
             $(this).attr('title', 'Mark as completed');
         }
         let classList = $(this).parent().attr('class');
-        console.log(classList);
         let firstClass = "";
         if (classList.indexOf(' ') >= 0) {
             firstClass = classList.substring(0, classList.indexOf(' '));
