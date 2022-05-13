@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List - JQuery</title>
+    <script src="./jquery.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Main container starts -->
+    <div class="container center">
+        <div class="main">
+            <h1>Todo List</h1>
+            <form id="myForm">
+                <input type="text" id="input" maxlength="200">
+                <input type="submit" id="submit" value="Add Note">
+            </form>
+            <ul id="list">
+                <!-- Sample li item -->
+                <!-- <li>
+                    <span>ipsum dolor sit amet consectetur adipisicing elit. Eius, nemo?</span>
+                    <button title="Delete" class="delete">✖</button>
+                    <button title="Mark as completed" class="completed">✔</button>
+                </li> -->
+            </ul>
+            <button class="clearBtn">Clear All</button>
+        </div>
+    </div>
+    <!-- Main container ends -->
+</body>
+
+<script>
+    let count;
+    localStorage.length > 0 ? count = localStorage.length : count = 0;
+
+    window.addEventListener('load', function () {
+
+        if (localStorage.length > 0) {
+            const items = { ...localStorage };
+            const  itemKeys = Object.keys(items);
+            const orderedItems = itemKeys.sort(function(a, b){
+                a = parseInt(a.substring(5));
+                b = parseInt(b.substring(5));
+                return b - a;
+            });
+            console.log(orderedItems);
+            let listItems = "";
+            orderedItems.forEach(key => {
+                listItems += `<li class=${key}>
+                     <span>${items[key]}</span>
+                     <button title="Delete" class="delete">✖</button>
+                     <button title="Mark as completed" class="completed">✔</button>
+                 </li>`;
+            });
+            $('#list').html(listItems);
+        }
+    });
+
+
+    $(document).ready(function () {
+
+        // Adding Notes
+        $("#myForm").submit(function (e) {
+            e.preventDefault();
+            let value = $("#input").val();
+            if (value.length > 0) {
+                let listItem = $("<li></li>").html(`<span id='textItem'>${value}</span>`);
+                let button1 = $("<button></button").text("✖");
+                button1.addClass("delete");
+                button1.attr('title', 'Delete');
+                let button2 = $("<button></button").text("✔");
+                button2.addClass("completed");
+                button2.attr('title', 'Mark as completed');
+                listItem.append(button1, button2);
+                listItem.addClass(`note-${count}`);
+                $("#list").prepend(listItem);
+                localStorage.setItem(`note-${count}`, $('#textItem').text());
+                count++;
+            }
+            $("#input").val("");
+        });
+
+        // Clearing all data
+        $('.clearBtn').click(function () {
+            $('#list').text("");
+            localStorage.clear();
+            location.reload();
+        });
+
+    });
+
+
+    // Deleting Note
+    $(document).on('click', 'button.delete', function () {
+        $(this).parent().remove();
+        localStorage.removeItem($(this).parent('li')[0].classList.value);
+        const items = { ...localStorage };
+        const  itemKeys = Object.keys(items);
+            const orderedItems = itemKeys.sort(function(a, b){
+                a = parseInt(a.substring(5));
+                b = parseInt(b.substring(5));
+                return a - b;
+            });
+        console.log(orderedItems);
+        localStorage.clear();
+        count = 0;
+        if (orderedItems.length > 0) {
+            orderedItems.forEach(key => {
+                localStorage.setItem(`note-${count++}`, items[key]);
+            });
+        }
+    });
+
+    // Adding marked class
+    $(document).on('click', 'button.completed', function () {
+        $(this).parent().toggleClass('marked');
+        let text = $(this).text();
+        if (text === "✔") {
+            $(this).text("✖");
+            $(this).attr('title', 'Mark as not completed');
+        } else {
+            $(this).text("✔");
+            $(this).attr('title', 'Mark as completed');
+        }
+    });
+
+
+</script>
+
+</html>
