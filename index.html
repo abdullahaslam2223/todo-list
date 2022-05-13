@@ -41,19 +41,25 @@
 
         if (localStorage.length > 0) {
             const items = { ...localStorage };
-            const  itemKeys = Object.keys(items);
-            const orderedItems = itemKeys.sort(function(a, b){
+            const itemKeys = Object.keys(items);
+            const orderedItems = itemKeys.sort(function (a, b) {
                 a = parseInt(a.substring(5));
                 b = parseInt(b.substring(5));
                 return b - a;
             });
             console.log(orderedItems);
             let listItems = "";
+            let marked = false;
             orderedItems.forEach(key => {
-                listItems += `<li class=${key}>
-                     <span>${items[key]}</span>
+                if (JSON.parse(items[key]).marked) {
+                    marked = 'marked';
+                } else {
+                    marked = '';
+                }
+                listItems += `<li class='${key} ${marked}'>
+                     <span>${JSON.parse(items[key]).name}</span>
                      <button title="Delete" class="delete">✖</button>
-                     <button title="Mark as completed" class="completed">✔</button>
+                     <button title="Mark as completed" class="completed">${JSON.parse(items[key]).marked ? '✖' : '✔'}</button>
                  </li>`;
             });
             $('#list').html(listItems);
@@ -78,7 +84,11 @@
                 listItem.append(button1, button2);
                 listItem.addClass(`note-${count}`);
                 $("#list").prepend(listItem);
-                localStorage.setItem(`note-${count}`, $('#textItem').text());
+                const obj = {
+                    name: $('#textItem').text(),
+                    marked: false
+                }
+                localStorage.setItem(`note-${count}`, JSON.stringify(obj));
                 count++;
             }
             $("#input").val("");
@@ -90,7 +100,6 @@
             localStorage.clear();
             location.reload();
         });
-
     });
 
 
@@ -99,12 +108,12 @@
         $(this).parent().remove();
         localStorage.removeItem($(this).parent('li')[0].classList.value);
         const items = { ...localStorage };
-        const  itemKeys = Object.keys(items);
-            const orderedItems = itemKeys.sort(function(a, b){
-                a = parseInt(a.substring(5));
-                b = parseInt(b.substring(5));
-                return a - b;
-            });
+        const itemKeys = Object.keys(items);
+        const orderedItems = itemKeys.sort(function (a, b) {
+            a = parseInt(a.substring(5));
+            b = parseInt(b.substring(5));
+            return a - b;
+        });
         console.log(orderedItems);
         localStorage.clear();
         count = 0;
@@ -126,6 +135,21 @@
             $(this).text("✔");
             $(this).attr('title', 'Mark as completed');
         }
+        let classList = $(this).parent().attr('class');
+        console.log(classList);
+        let firstClass = "";
+        if (classList.indexOf(' ') >= 0) {
+            firstClass = classList.substring(0, classList.indexOf(' '));
+        } else {
+            firstClass = classList;
+        }
+        let obj = JSON.parse(localStorage.getItem(firstClass));
+        if ($(this).parent().hasClass('marked')) {
+            obj.marked = true;
+        } else {
+            obj.marked = false;
+        }
+        localStorage.setItem(firstClass, JSON.stringify(obj));
     });
 
 
